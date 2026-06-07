@@ -1,0 +1,180 @@
+rules_version = '2';
+
+// =============================================================================
+// Mishkas Corner — Firestore Security Rules
+// =============================================================================
+// Firebase Auth + Firestore equivalent of Supabase RLS.
+//
+// Deploy:
+//   firebase deploy --only firestore:rules
+//
+// Admin writes (product CRUD, payment verification, Shiprocket updates) use the
+// Firebase Admin SDK in Next.js API routes — Admin SDK bypasses these rules.
+// =============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.admin == true;
+    }
+
+    function isActiveProduct(productId) {
+      return get(/databases/$(database)/documents/products/$(productId)).data.status == 'active';
+    }
+
+    function validPincode(pincode) {
+      return pincode is string && pincode.matches('^[0-9]{6}$');
+    }
+
+    function validPhone(phone) {
+      return phone == null || (phone is string && phone.matches('^[0-9]{10}$'));
+    }
+
+    function validAddressType(type) {
+      return type in ['home', 'work'];
+    }
+
+    function validProductSize(size) {
+      return size in ['S', 'M', 'L', 'XL', 'XXL'];
+    }
+
+    function validPaymentStatus(status) {
+      return status in ['pending', 'paid', 'failed'];
+    }
+
+    function validShippingStatus(status) {
+      return status in ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+    }
+
+    function validProductStatus(status) {
+      return status in ['draft', 'active'];
+    }
+
+    // -------------------------------------------------------------------------
+    // profiles/{userId}
+    // 1:1 with Firebase Auth UID. Created on first sign-in via client or API.
+    // -------------------------------------------------------------------------
+    match /profiles/{userId} {
+      allow read: if isOwner(userId);
+
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasOnly([
+          'phoneNumber', 'fullName', 'createdAt', 'updatedAt'
+        ])
+        && validPhone(request.resource.data.get('phoneNumber', null));
+
+      allow update: if isOwner(userId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['phoneNumber', 'fullName', 'updatedAt'])
+        && validPhone(request.resource.data.get('phoneNumber', null));
+
+      allow delete: if false;
+
+      // addresses/{addressId} — saved delivery addresses per customer
+      match /addresses/{addressId} {
+        allow read: if isOwner(userId);
+
+        allow create: if isOwner(userId)
+          && request.resource.data.keys().hasAll([
+            'isDefault', 'addressLine1', 'city', 'state', 'pincode', 'type',
+            'createdAt', 'updatedAt'
+          ])
+          && validPincode(request.resource.data.pincode)
+          && validAddressType(request.resource.data.type)
+          && request.resource.data.isDefault is bool;
+
+        allow update: if isOwner(userId)
+          && validPincode(request.resource.data.pincode)
+          && validAddressType(request.resource.data.type);
+
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // products/{productId}
+    // Public catalog — only `active` products are readable by storefront visitors.
+    // -------------------------------------------------------------------------
+    match /products/{productId} {
+      allow read: if resource.data.status == 'active' || isAdmin();
+
+      allow write: if isAdmin();
+
+      // product_variants/{variantId}
+      match /variants/{variantId} {
+        allow read: if isActiveProduct(productId) || isAdmin();
+
+        allow write: if isAdmin()
+          && validProductSize(request.resource.data.size)
+          && request.resource.data.stockQuantity is int
+          && request.resource.data.stockQuantity >= 0;
+      }
+
+      // product_images/{imageId}
+      match /images/{imageId} {
+        allow read: if isActiveProduct(productId) || isAdmin();
+
+        allow write: if isAdmin()
+          && request.resource.data.displayOrder is int
+          && request.resource.data.displayOrder >= 0;
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // orders/{orderId}
+    // Customers create pending orders; payment/shipping updates are server-only.
+    // -------------------------------------------------------------------------
+    match /orders/{orderId} {
+      allow read: if isSignedIn()
+        && resource.data.userId == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.paymentStatus == 'pending'
+        && request.resource.data.shippingStatus == 'pending'
+        && validPaymentStatus(request.resource.data.paymentStatus)
+        && validShippingStatus(request.resource.data.shippingStatus)
+        && request.resource.data.totalAmount is number
+        && request.resource.data.totalAmount > 0;
+
+      // Clients must not mutate orders after creation (Razorpay/Shiprocket via Admin SDK).
+      allow update, delete: if false;
+
+      // order_items/{itemId}
+      match /items/{itemId} {
+        allow read: if isSignedIn()
+          && get(/databases/$(database)/documents/orders/$(orderId)).data.userId
+            == request.auth.uid;
+
+        allow create: if isSignedIn()
+          && get(/databases/$(database)/documents/orders/$(orderId)).data.userId
+            == request.auth.uid
+          && get(/databases/$(database)/documents/orders/$(orderId)).data.paymentStatus
+            == 'pending'
+          && request.resource.data.quantity is int
+          && request.resource.data.quantity > 0
+          && request.resource.data.priceAtPurchase is number
+          && request.resource.data.priceAtPurchase > 0;
+
+        allow update, delete: if false;
+      }
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

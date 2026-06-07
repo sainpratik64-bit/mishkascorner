@@ -1,0 +1,322 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Bonkers Corner–aligned tokens (sourced from bonkerscorner.com theme CSS)
+ * product-grid.css, facets.css, announcement-bar.css, app.css
+ */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 0%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 0%;
+    --radius: 0rem;
+
+    /* Bonkers typography scale */
+    --bc-announcement: 13px;
+    --bc-product-title: 0.9375rem;
+    --bc-product-title-lh: 1.5;
+    --bc-price: 0.9375rem;
+    --bc-badge: 10px;
+    --bc-nav: 0.8rem;
+    --bc-sort: 0.75rem;
+    --bc-filter-mobile: 12px;
+    --bc-filter-desktop: 17px;
+    --bc-add-to-cart-mobile: 0.5625rem;
+    --bc-add-to-cart-desktop: 0.6875rem;
+    --bc-body-lh: 1.6;
+    --bc-container: 1440px;
+    --bc-sidebar: clamp(250px, 22%, 285px);
+    --bc-card-gap-mobile: 20px;
+    --bc-card-gap-desktop: 30px;
+    --bc-badge-sale: #ee3a45;
+    --bc-marquee-duration: 60s;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-brand-white text-brand-black antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Ubuntu,
+      'Helvetica Neue', Arial, sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: var(--bc-body-lh);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: inherit;
+    font-weight: 600;
+    color: inherit;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1 {
+    font-size: clamp(1.75rem, 4vw, 2.875rem);
+    line-height: 1.45;
+  }
+}
+
+@layer components {
+  .bc-announcement {
+    font-size: var(--bc-announcement);
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    line-height: 1;
+  }
+
+  .bc-product-title {
+    font-size: var(--bc-product-title);
+    font-weight: 500;
+    line-height: var(--bc-product-title-lh);
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+
+  .bc-price {
+    font-size: var(--bc-price);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }
+
+  .bc-price-compare {
+    opacity: 0.4;
+    text-decoration: line-through;
+  }
+
+  .bc-badge-sale {
+    display: inline-flex;
+    align-items: center;
+    height: 23px;
+    padding: 0 10px;
+    border-radius: 50px;
+    background: var(--bc-badge-sale);
+    color: #fff;
+    font-size: var(--bc-badge);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 0;
+  }
+
+  .bc-btn-add-to-cart {
+    width: 100%;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #151515;
+    color: #fff;
+    font-size: var(--bc-add-to-cart-mobile);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: opacity 0.25s ease;
+  }
+
+  @media (min-width: 768px) {
+    .bc-btn-add-to-cart {
+      font-size: var(--bc-add-to-cart-desktop);
+    }
+  }
+
+  .bc-btn-add-to-cart:hover {
+    opacity: 0.9;
+  }
+
+  .bc-filter-heading {
+    font-size: var(--bc-filter-mobile);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 769px) {
+    .bc-filter-heading {
+      font-size: var(--bc-filter-desktop);
+    }
+  }
+
+  .bc-facets-bar {
+    font-size: var(--bc-nav);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .bc-sort-label {
+    font-size: var(--bc-sort);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .bc-collection-desc {
+    font-size: 1rem;
+    line-height: var(--bc-body-lh);
+    color: rgba(0, 0, 0, 0.8);
+  }
+
+  /* PDP */
+  .bc-pdp-title {
+    font-size: 1.75rem;
+    line-height: 2.125rem;
+    font-weight: 500;
+    margin-bottom: 3px;
+    text-transform: none;
+  }
+
+  .bc-pdp-meta {
+    font-size: 0.8125rem;
+    color: rgba(0, 0, 0, 0.8);
+    letter-spacing: 0.02em;
+  }
+
+  .bc-pdp-btn {
+    width: 100%;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    background: #151515;
+    color: #fff;
+    border-radius: 3px;
+    transition: opacity 0.25s ease;
+  }
+
+  .bc-pdp-btn:hover:not(:disabled) {
+    opacity: 0.9;
+  }
+
+  .bc-pdp-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .bc-variant-btn {
+    height: 30px;
+    min-width: 30px;
+    padding: 0 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    font-size: 0.75rem;
+    transition: border-color 0.2s ease;
+  }
+
+  .bc-variant-btn:hover:not(:disabled) {
+    border-color: #000;
+  }
+
+  .bc-variant-btn.is-selected {
+    border-color: #000;
+    background: #000;
+    color: #fff;
+  }
+
+  .bc-variant-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    text-decoration: line-through;
+  }
+
+  /* Cart drawer */
+  .bc-cart-header {
+    display: flex;
+    height: 72px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 17px 30px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .bc-cart-item-meta {
+    font-size: 0.6875rem;
+    opacity: 0.8;
+    margin-top: 5px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  .bc-text-link {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    text-decoration: underline;
+    letter-spacing: 0.02em;
+  }
+
+  .bc-cart-footer-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@layer utilities {
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    flex-wrap: nowrap;
+    will-change: transform;
+    animation: marquee var(--bc-marquee-duration, 60s) linear infinite;
+  }
+
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      width: 100%;
+      padding-inline: 1rem;
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "_comment": "Import via Admin SDK script or Firebase Console. Product doc ID is auto-generated on import.",
+  "products": [
+    {
+      "title": "Oversized Drop Tee — Black",
+      "slug": "oversized-drop-tee-black",
+      "description": "240 GSM heavyweight cotton. Boxy streetwear fit.",
+      "price": 1299,
+      "compareAtPrice": 1599,
+      "gsm": 240,
+      "fabric": "100% Cotton",
+      "isUnisex": true,
+      "status": "active",
+      "variants": [
+        { "size": "M", "sku": "ODT-BLK-M", "stockQuantity": 25 },
+        { "size": "L", "sku": "ODT-BLK-L", "stockQuantity": 18 },
+        { "size": "XL", "sku": "ODT-BLK-XL", "stockQuantity": 12 }
+      ],
+      "images": [
+        {
+          "imageUrl": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&h=1000&fit=crop&auto=format&q=80",
+          "altText": "Front view",
+          "displayOrder": 0
+        },
+        {
+          "imageUrl": "https://images.unsplash.com/photo-1503342217507-d2b934854d69?w=800&h=1000&fit=crop&crop=top&auto=format&q=80",
+          "altText": "Styled look",
+          "displayOrder": 1
+        }
+      ]
+    }
+  ]
+}
